@@ -1,4 +1,4 @@
-package make_talent;
+﻿package make_talent;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,6 @@ public class text_parser {
 	private static final String MY_CONSTANT_OHTML = "<html>";
 	private static final String MY_CONSTANT_OHEAD = "<head>";
 	private static final String MY_CONSTANT_META = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
-	//windows-1251
 	private static final String MY_CONSTANT_CHEAD = "</head>";
 	private static final String MY_CONSTANT_OBODY = "<body>";
 
@@ -42,25 +40,28 @@ public class text_parser {
 	public static String findstring(String inputDict, String inputDoc, String inputCountString)
 			throws FileNotFoundException, IOException {
 
-		final InputStream inputStreamDoc = new FileInputStream(inputDoc);
-		final BufferedReader readerDoc = new BufferedReader(new InputStreamReader(inputStreamDoc));
-		final InputStream inputStreamDict = new FileInputStream(inputDict);
-		final BufferedReader readerDict = new BufferedReader(new InputStreamReader(inputStreamDict));
+		final FileInputStream FinputStreamDoc = new FileInputStream(inputDoc);
+		final InputStreamReader IStreamReaderDoc = new InputStreamReader(FinputStreamDoc, "Windows-1251");
+		final BufferedReader BreaderDoc = new BufferedReader(IStreamReaderDoc);
 
-		// ,,
+		final FileInputStream FinputStreamDict = new FileInputStream(inputDict);
+		final InputStreamReader IStreamReaderDict = new InputStreamReader(FinputStreamDict, "Windows-1251");
+		final BufferedReader BreaderDict = new BufferedReader(IStreamReaderDict);
+
+// ,,
 		StringBuilder body = new StringBuilder();
 
 		// переменная используется при формировании названия файла(порядковый
 		// номер файла)
 		int i = 1;
-		// ,,
+// ,,
 		String[] stringParts;
 
 		//
 		String lineDict;
 		List<String> stringDict = new ArrayList<String>();
 		int countLine = 0;
-		while ((lineDict = readerDict.readLine()) != null) {
+		while ((lineDict = BreaderDict.readLine()) != null) {
 			stringDict.add(lineDict.trim());
 			countLine++;
 		}
@@ -80,7 +81,7 @@ public class text_parser {
 
 		int stringCount = 1;
 		int memoryStringnumber = 0;
-		while ((line = readerDoc.readLine()) != null) {
+		while ((line = BreaderDoc.readLine()) != null) {
 
 			if (line.contains(".")) {
 				memoryStringnumber = stringCount;
@@ -176,10 +177,12 @@ public class text_parser {
 			body.delete(0, body.length());
 		}
 
-		readerDict.close();
-		inputStreamDict.close();
-		readerDoc.close();
-		inputStreamDoc.close();
+		FinputStreamDict.close();
+		IStreamReaderDict.close();
+		BreaderDict.close();
+		FinputStreamDoc.close();
+		IStreamReaderDoc.close();
+		BreaderDoc.close();
 		return "ok";
 	}
 	
