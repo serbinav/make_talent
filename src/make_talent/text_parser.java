@@ -14,366 +14,311 @@ import java.util.List;
 
 public class text_parser {
 		
-	//java файла частями в память
-	public static String findstring (File inputDict, File inputDoc, int inputCountString)  throws FileNotFoundException, IOException{
-		String DOCTYPE = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" ";
-		String http = "\"http://www.w3.org/TR/html4/strict.dtd\">";
-		String ohtml = "<html>";
-		String ohead = "<head>";
-		String meta = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1251\">";
-		String chead = "</head>";
-		String obody = "<body>";
-		
-		String op = "<p>";
-		String cp = "</p>";
-		
-		String obi = "<b><i>";
-		String cbi = "</i></b>";
-		
-		String cbody = "</body>";
-		String chtml = "</html>";
-        
+	private static final String MY_CONSTANT_DOCTYPE = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" ";
+	private static final String MY_CONSTANT_HTTP = "\"http://www.w3.org/TR/html4/strict.dtd\">";
+	private static final String MY_CONSTANT_OHTML = "<html>";
+	private static final String MY_CONSTANT_OHEAD = "<head>";
+	private static final String MY_CONSTANT_META = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
+	//windows-1251
+	private static final String MY_CONSTANT_CHEAD = "</head>";
+	private static final String MY_CONSTANT_OBODY = "<body>";
+
+	private static final String MY_CONSTANT_OP = "<p>";
+	private static final String MY_CONSTANT_CP = "</p>";
+
+	private static final String MY_CONSTANT_OBI = "<b><i>";
+	private static final String MY_CONSTANT_CBI = "</i></b>";
+
+	private static final String MY_CONSTANT_CBODY = "</body>";
+	private static final String MY_CONSTANT_CHTML = "</html>";
+	
+	// РѕСЃРЅРѕРІРЅРѕР№ РјРµС‚РѕРґ РґР»СЏ РїРѕРёСЃРєР° СЃР»РѕРІ РёР· С„Р°Р№Р»Р° СЃР»РѕРІР°СЂСЏ РІ С‚РµРєСЃС‚РѕРІРѕРј С„Р°Р№Р»Рµ Рё
+	// С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РІС‹С…РѕРґРЅС‹С… html С„Р°Р№Р»РѕРІ
+	// РІС…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹:
+	// File inputDict - С„Р°Р№Р» СЃР»РѕРІР°СЂСЏ
+	// File inputDoc - С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р»
+	// int inputCountString - РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ РІС‹С…РѕРґРЅРѕРј С„Р°Р№Р»Рµ РЅРµ РґРѕР»Р¶РЅРѕ
+	// РїСЂРµРІС‹С€Р°С‚СЊ СЌС‚Сѓ РІРµР»РёС‡РёРЅСѓ
+	public static String findstring(String inputDict, String inputDoc, String inputCountString)
+			throws FileNotFoundException, IOException {
+
 		final InputStream inputStreamDoc = new FileInputStream(inputDoc);
-		final BufferedReader readerDoc = new BufferedReader(new InputStreamReader(inputStreamDoc)); 
+		final BufferedReader readerDoc = new BufferedReader(new InputStreamReader(inputStreamDoc));
 		final InputStream inputStreamDict = new FileInputStream(inputDict);
-		final BufferedReader readerDict = new BufferedReader(new InputStreamReader(inputStreamDict)); 
-		
+		final BufferedReader readerDict = new BufferedReader(new InputStreamReader(inputStreamDict));
+
+		// ,,
 		StringBuilder body = new StringBuilder();
-		  
+
+		// РїРµСЂРµРјРµРЅРЅР°СЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё С„РѕСЂРјРёСЂРѕРІР°РЅРёРё РЅР°Р·РІР°РЅРёСЏ С„Р°Р№Р»Р°(РїРѕСЂСЏРґРєРѕРІС‹Р№
+		// РЅРѕРјРµСЂ С„Р°Р№Р»Р°)
 		int i = 1;
+		// ,,
 		String[] stringParts;
-		
-        String lineDict;
-        List<String> stringDict = new ArrayList<String>();
-        
-        int countLine = 0;
-        while ((lineDict = readerDict.readLine()) != null) {
-        	stringDict.add(lineDict.trim());
-        	countLine++;
-        }
-		if ( countLine > 100000 ) {
-			return "ошибка: количество строк в файле словаря больше 100 000";
-		}	
-        
-		// использовать ли строку ???
-		String line;  
+
+		//
+		String lineDict;
+		List<String> stringDict = new ArrayList<String>();
+		int countLine = 0;
+		while ((lineDict = readerDict.readLine()) != null) {
+			stringDict.add(lineDict.trim());
+			countLine++;
+		}
+		if (countLine > 100000) {
+			return "РѕС€РёР±РєР°: РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ С„Р°Р№Р»Рµ СЃР»РѕРІР°СЂСЏ Р±РѕР»СЊС€Рµ 100 000";
+		}
+
+		String line;
 		boolean flag = false;
-		
-        int stringCount = 1;
-        int memoryStringnumber = 0;
-        while ((line = readerDoc.readLine()) != null) {
-        	
-        	if (line.contains(".")) {
-        		memoryStringnumber = stringCount;
-        	}
-        	
-        	if (stringCount >= inputCountString) {
-//				System.out.println(line); 
 
-					stringParts = line.split(" ");
+		int inputInt;
+		try {
+			inputInt = new Integer(inputCountString);
+		} catch (NumberFormatException e) {
+			return "РѕС€РёР±РєР°: " + inputCountString + " РЅРµ С‡РёСЃР»РѕРІРѕР№ РїР°СЂР°РјРµС‚СЂ";
+		}
 
-					body.append(op);
-					for (String word : stringParts) {
-//						System.out.println(word); 
-						for (int j = 0; j < stringDict.size(); j++) {
-							if (word.equalsIgnoreCase(stringDict.get(j))) {
-								body.append(obi+ word + cbi + " ");
-								flag = true;
-								break;
-							}
-						}
-						if (flag != true) 
-							body.append(word + " ");
-						else
-							flag = false;			
-					}
-					body.append(cp);
-					
-//					System.out.println(body.lastIndexOf(".")); 
-//					System.out.println(body.substring(0,body.lastIndexOf(".")+1)); 
-					
-					StringBuilder untildota = new StringBuilder();
-					StringBuilder afterdota = new StringBuilder();
-		        	if (memoryStringnumber != 0) {
-		        		untildota.append(body.substring(0,body.lastIndexOf(".")+1));
-		        		untildota.append(cp);
-		        		afterdota.append(op);
-		        		afterdota.append(body.substring(body.lastIndexOf(".")+1));
-		        	}
-		        	else
-		        		untildota.append(body);
+		int stringCount = 1;
+		int memoryStringnumber = 0;
+		while ((line = readerDoc.readLine()) != null) {
 
-	    	  		BufferedWriter qwerty = new BufferedWriter(new FileWriter("part"+i+".html"));
-		        	qwerty.write(DOCTYPE);
-					qwerty.write(http);
-					qwerty.write(ohtml);
-					qwerty.write(ohead);
-					qwerty.write(meta);
-					qwerty.write(chead);
-					qwerty.write(obody);
-					qwerty.write(untildota.toString());
-					qwerty.write(cbody);
-					qwerty.write(chtml);
-					qwerty.close();
-		      
-					body.delete(0, body.length());
-		        	if (memoryStringnumber != 0) {
-		        		body.append(afterdota);
-		        		stringCount = inputCountString - memoryStringnumber;
-		        		memoryStringnumber = 0;
-		        	}
-		        	else
-		        		stringCount = 0;
-					i++;
+			if (line.contains(".")) {
+				memoryStringnumber = stringCount;
 			}
-			else{
-	        	stringParts = line.split(" ");
 
-				body.append(op);
+			if (stringCount >= inputInt) {
+
+				stringParts = line.split(" ");
+
+				body.append(MY_CONSTANT_OP);
 				for (String word : stringParts) {
-					for (int k = 0; k < stringDict.size(); k++) {
-						if (word.equalsIgnoreCase(stringDict.get(k))) {
-							body.append(obi+ word + cbi + " ");
+					for (int j = 0; j < stringDict.size(); j++) {
+						if (word.equalsIgnoreCase(stringDict.get(j))) {
+							body.append(MY_CONSTANT_OBI + word + MY_CONSTANT_CBI + " ");
 							flag = true;
 							break;
 						}
 					}
-					if (flag != true) 
+					if (flag != true)
 						body.append(word + " ");
 					else
-						flag = false;	
+						flag = false;
 				}
-				body.append(cp);
-			} 
-        	stringCount++;
-        }
-        
-    	if (stringCount > 1) {
-	  		BufferedWriter qwerty = new BufferedWriter(new FileWriter("part"+i+".html"));
-        	qwerty.write(DOCTYPE);
-			qwerty.write(http);
-			qwerty.write(ohtml);
-			qwerty.write(ohead);
-			qwerty.write(meta);
-			qwerty.write(chead);
-			qwerty.write(obody);
+				body.append(MY_CONSTANT_CP);
+
+				StringBuilder untildota = new StringBuilder();
+				StringBuilder afterdota = new StringBuilder();
+				if (memoryStringnumber != 0) {
+					untildota.append(body.substring(0, body.lastIndexOf(".") + 1));
+					untildota.append(MY_CONSTANT_CP);
+					afterdota.append(MY_CONSTANT_OP);
+					afterdota.append(body.substring(body.lastIndexOf(".") + 1));
+				} else
+					untildota.append(body);
+
+				BufferedWriter qwerty = new BufferedWriter(new FileWriter("part" + i + ".html"));
+				qwerty.write(MY_CONSTANT_DOCTYPE);
+				qwerty.write(MY_CONSTANT_HTTP);
+				qwerty.write(MY_CONSTANT_OHTML);
+				qwerty.write(MY_CONSTANT_OHEAD);
+				qwerty.write(MY_CONSTANT_META);
+				qwerty.write(MY_CONSTANT_CHEAD);
+				qwerty.write(MY_CONSTANT_OBODY);
+				qwerty.write(untildota.toString());
+				qwerty.write(MY_CONSTANT_CBODY);
+				qwerty.write(MY_CONSTANT_CHTML);
+				qwerty.close();
+
+				body.delete(0, body.length());
+				if (memoryStringnumber != 0) {
+					body.append(afterdota);
+					stringCount = inputInt - memoryStringnumber;
+					memoryStringnumber = 0;
+				} else
+					stringCount = 0;
+				i++;
+			} else {
+				stringParts = line.split(" ");
+
+				body.append(MY_CONSTANT_OP);
+				for (String word : stringParts) {
+					for (int k = 0; k < stringDict.size(); k++) {
+						if (word.equalsIgnoreCase(stringDict.get(k))) {
+							body.append(MY_CONSTANT_OBI + word + MY_CONSTANT_CBI + " ");
+							flag = true;
+							break;
+						}
+					}
+					if (flag != true)
+						body.append(word + " ");
+					else
+						flag = false;
+				}
+				body.append(MY_CONSTANT_CP);
+			}
+			stringCount++;
+		}
+
+		if (stringCount > 1) {
+			BufferedWriter qwerty = new BufferedWriter(new FileWriter("part" + i + ".html"));
+			qwerty.write(MY_CONSTANT_DOCTYPE);
+			qwerty.write(MY_CONSTANT_HTTP);
+			qwerty.write(MY_CONSTANT_OHTML);
+			qwerty.write(MY_CONSTANT_OHEAD);
+			qwerty.write(MY_CONSTANT_META);
+			qwerty.write(MY_CONSTANT_CHEAD);
+			qwerty.write(MY_CONSTANT_OBODY);
 			qwerty.write(body.toString());
-			qwerty.write(cbody);
-			qwerty.write(chtml);
+			qwerty.write(MY_CONSTANT_CBODY);
+			qwerty.write(MY_CONSTANT_CHTML);
 			qwerty.close();
-      
+
 			body.delete(0, body.length());
-    	}
-    	
+		}
+
 		readerDict.close();
-        inputStreamDict.close();
+		inputStreamDict.close();
 		readerDoc.close();
-        inputStreamDoc.close();
+		inputStreamDoc.close();
 		return "ok";
-    }
-  
-	public static void main(String[] args) {
-//************************************************************************
+	}
+	
+	public static String testData(String fileWordbook, String fileDoc, String numberString) {
 		int number_line = 0;
 		File file_dict = new File("");
 		File file_text = new File("");
 
-		boolean flag_number = false;
-		boolean flag_dict  = false;
-		boolean flag_text = false;
-		
-		if (args.length == 0){
-			System.err.println("ошибка: не заданы входные параметры");
-		    return_help();  
-		    return; 
-		}	
-		
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].startsWith("-")){
-				switch (args[i]) {
-				case "-n":
-					flag_number = true;
-					flag_dict = false;
-					flag_text = false;
-				break;
-				// разбор неправильных слешей/наклонок
-				//"C:\Работа\Симбирсофт"
-				case "-d":
-					flag_number = false;
-					flag_dict = true;
-					flag_text = false;
-				break;
-				case "-t":
-					flag_number = false;
-					flag_dict = false;
-					flag_text = true;
-				break;
-				default:
-					System.err.println("ошибка: "+args[i]+" неизвестный аргумент");
-					return_help();  
-			    	return;
-				} 
-			}
-			else if (flag_number) {
-				try { 
-					number_line = new Integer(args[i]);
-					flag_number = false;
-//			  		System.out.println(number_line);
-			  		
-					if ( number_line < 10 ) { 
-						System.err.println("ошибка: числовой параметр меньше 10");
-					    return_help();
-					    return;
-					}
-					else if ( number_line > 100000 ) { 
-						System.err.println("ошибка: числовой параметр больше 100 000");
-					    return_help();
-					    return;
-					}	
-				}catch (NumberFormatException e) {  
-					System.err.println("ошибка: " + args[i] +" не числовой параметр");
-				    return_help();
-				    return;
-				}
-			}
-			else if (flag_dict) {
-				file_dict = new File(args[i]);
-				flag_dict = false;
-//				System.out.println(file_dict);
-				
-				String error = test_file(file_dict);
-				if ( error != "ok") {
-					System.err.println(error);
-					return_help();
-					return;
-				}
-			}
-			else if (flag_text) {
-				file_text = new File(args[i]);
-				flag_text = false;
-//				System.out.println(file_text);
-				
-				String error = test_file(file_text);
-				if ( error != "ok") {
-					System.err.println(error);
-					return_help();
-					return;
-				}
-			}	
+		String errorFile = "";
+		file_dict = new File(fileWordbook);
+		errorFile = test_file(file_dict);
+		if (errorFile != "ok") {
+			return errorFile;
 		}
-		
-		if (number_line == 0){
-			System.err.println("ошибка: не задано количество строк в выходных html-файлах");
-			return_help();  
-			return; 
-		}
-		else if (file_dict.toString() == ""){
-			System.err.println("ошибка: не задан путь к файлу словаря");
-			return_help();  
-			return; 
-		}
-		else if (file_text.toString() == ""){
-			System.err.println("ошибка: не задан путь к файлу с текстом");
-			return_help();  
-			return; 
-		}
-//************************************************************************
 
-		String error = "";
+		file_text = new File(fileDoc);
+		errorFile = test_file(file_text);
+		if (errorFile != "ok") {
+			return errorFile;
+		}
+		
 		try {
-			error = text_parser.findstring(file_dict,file_text, number_line);
-			if ( error != "ok") {
-				System.err.println(error);
-				return_help();  
-			}
-		} catch (FileNotFoundException e) {
-	        System.out.println("ошибка: не найден файл!"); 
-//			e.printStackTrace();
-		} catch (IOException e) {
-	        System.out.println("ошибка: ввода вывода!"); 
-//			e.printStackTrace();
-		}
+			number_line = new Integer(numberString);
 
-//	    text_parser.readFile("файл.txt"); 
-//	    text_parser.readFile("словарь.txt");   
-	} 
+			if (number_line < 10) {
+				return "РѕС€РёР±РєР°: С‡РёСЃР»РѕРІРѕР№ РїР°СЂР°РјРµС‚СЂ РјРµРЅСЊС€Рµ 10";
+			} else if (number_line > 100000) {
+				return "РѕС€РёР±РєР°: С‡РёСЃР»РѕРІРѕР№ РїР°СЂР°РјРµС‚СЂ Р±РѕР»СЊС€Рµ 100 000";
+			}
+		} catch (NumberFormatException e) {
+			return "РѕС€РёР±РєР°: " + numberString + " РЅРµ С‡РёСЃР»РѕРІРѕР№ РїР°СЂР°РјРµС‚СЂ";
+		}
+		
+		return "ok";
+	}
 
 	public static String test_file(File input_file) {
 		if (!input_file.exists()) {
-			return "ошибка: данный файл: "+input_file.toString()+" не существует"; 
-		}  
-		else if (!input_file.isFile()) {
-			return "ошибка: данный файл: "+input_file.toString()+" является директорией";  
-		}
-		else if (!input_file.canRead()) {
-			return "ошибка: данный файл: "+input_file.toString()+" не доступен для чтения";  
-		}
-		else if (input_file.length() > 2097152 ) {
-			return "ошибка: размер данного файла: "+input_file.toString()+" превышает 2Мб";  
+			return "РѕС€РёР±РєР°: РґР°РЅРЅС‹Р№ С„Р°Р№Р»: " + input_file.toString() + " РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚";
+		} else if (!input_file.isFile()) {
+			return "РѕС€РёР±РєР°: РґР°РЅРЅС‹Р№ С„Р°Р№Р»: " + input_file.toString() + " СЏРІР»СЏРµС‚СЃСЏ РґРёСЂРµРєС‚РѕСЂРёРµР№";
+		} else if (!input_file.canRead()) {
+			return "РѕС€РёР±РєР°: РґР°РЅРЅС‹Р№ С„Р°Р№Р»: " + input_file.toString() + " РЅРµ РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ С‡С‚РµРЅРёСЏ";
+		} else if (input_file.length() > 2097152) {
+			return "РѕС€РёР±РєР°: СЂР°Р·РјРµСЂ РґР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°: " + input_file.toString() + " РїСЂРµРІС‹С€Р°РµС‚ 2РњР±";
 		}
 		return "ok";
 	}
-	
+
 	public static void return_help() {
-	    //!выдавать помощь на разных языках
-	    System.err.println("Входные параметры:");
-	    System.err.println("[-n] количество строк в выходных html-файлах в интервале от 10 строк до 100 000 строк");
-	    System.err.println("[-d] путь к файлу словарю (размер файла не должен превышать 100 000 строк или 2 Мб)");
-	    System.err.println("[-t] путь к файлу с текстом (размер файла не должен превышать 2 Мб)"); 
-	    return;   
+		System.err.println("Р’С…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹:");
+		System.err.println("[-n] РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ РІС‹С…РѕРґРЅС‹С… html-С„Р°Р№Р»Р°С… РІ РёРЅС‚РµСЂРІР°Р»Рµ РѕС‚ 10 СЃС‚СЂРѕРє РґРѕ 100 000 СЃС‚СЂРѕРє");
+		System.err.println("[-d] РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ СЃР»РѕРІР°СЂСЋ (СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 100В 000 СЃС‚СЂРѕРє РёР»Рё 2 РњР±)");
+		System.err.println("[-t] РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ СЃ С‚РµРєСЃС‚РѕРј (СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 2 РњР±)");
+		return;
+	}
+
+	public static void main(String[] args) {
+		if (args.length == 0) {
+			System.err.println("РѕС€РёР±РєР°: РЅРµ Р·Р°РґР°РЅС‹ РІС…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹");
+			return_help();
+			return;
+		}
+
+		boolean flagNumber = false;
+		boolean flagDict = false;
+		boolean flagText = false;
+
+		String numberLine = "";
+		String fileDict = "";
+		String fileText = "";
+
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].startsWith("-")) {
+				switch (args[i]) {
+				case "-n":
+					flagNumber = true;
+					flagDict = false;
+					flagText = false;
+					break;
+				case "-d":
+					flagNumber = false;
+					flagDict = true;
+					flagText = false;
+					break;
+				case "-t":
+					flagNumber = false;
+					flagDict = false;
+					flagText = true;
+					break;
+				default:
+					System.err.println("РѕС€РёР±РєР°: " + args[i] + " РЅРµРёР·РІРµСЃС‚РЅС‹Р№ Р°СЂРіСѓРјРµРЅС‚");
+					return_help();
+					return;
+				}
+			}
+			if (flagNumber) {
+				numberLine = args[i];
+			} else if (flagDict) {
+				fileDict = args[i];
+			} else if (flagText) {
+				fileText = args[i];
+			}
+		}
+
+		if (numberLine == "") {
+			System.err.println("РѕС€РёР±РєР°: РЅРµ Р·Р°РґР°РЅРѕ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РІ РІС‹С…РѕРґРЅС‹С… html-С„Р°Р№Р»Р°С…");
+			return_help();
+			return;
+		} else if (fileDict == "") {
+			System.err.println("РѕС€РёfileDocР±РєР°: РЅРµ Р·Р°РґР°РЅ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ СЃР»РѕРІР°СЂСЏ");
+			return_help();
+			return;
+		} else if (fileText == "") {
+			System.err.println("РѕС€РёР±РєР°: РЅРµ Р·Р°РґР°РЅ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ СЃ С‚РµРєСЃС‚РѕРј");
+			return_help();
+			return;
+		}
+
+		String error = "";
+
+		error = text_parser.testData(fileDict, fileText, numberLine);
+		if (error != "ok") {
+			System.err.println(error);
+			return_help();
+			return;
+		}
+
+		try {
+			error = text_parser.findstring(fileDict, fileText, numberLine);
+			if (error != "ok") {
+				System.err.println(error);
+				return_help();
+				return;
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("РѕС€РёР±РєР°: РЅРµ РЅР°Р№РґРµРЅ С„Р°Р№Р»!");
+		} catch (IOException e) {
+			System.out.println("РѕС€РёР±РєР°: РІРІРѕРґР° РІС‹РІРѕРґР°!");
+		}
 	}
 }
-
-/*public static String getFileContents(final File file) throws IOException {
-    final InputStream inputStream = new FileInputStream(file);
-    final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream),2097152);
-    	        
-    final StringBuilder stringBuilder = new StringBuilder();
-    
-    boolean done = false;
-    
-    while (!done) {
-        final String line = reader.readLine();
-        done = (line == null);
-        	            
-        if (line != null) {
-            stringBuilder.append(line);
-            if (line.contains(".")) {
-    	        System.out.println(line); 
-            }
-        }
-    }
-    
-    reader.close();
-    inputStream.close();
-    
-    return stringBuilder.toString();
-}*/
-
-/*private static void readFile(String fileName) { 
-	try { 
-      
-       FileReader reader = new FileReader(fileName); 
-       BufferedReader in = new BufferedReader(reader); 
-       String string; 
-       while ((string = in.readLine()) != null) { 
-         System.out.println(string); 
-       } 
-       in.close(); 
-     } catch (IOException e) { 
-       e.printStackTrace(); 
-     } 
-}*/
-
-//разбивание каждой подстроки
-//stringParts = line.split(" ");
-//System.out.println(line.lastIndexOf(".") ); 
-	
-//String[] words = line.split(" ");
-//int j = 1;
-//for (String word : words) {
-// if (word.equalsIgnoreCase(inputFind)) {
-//     System.out.println("Найдено в " + i + "-й строке, " + j + "-е слово");
-// }
-// j++;
-//}
