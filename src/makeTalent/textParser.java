@@ -37,9 +37,9 @@ public class textParser {
 	// формирования выходных html файлов
 	// входные параметры:
 	// String inputDict - путь до файла словаря
-	// String inputDoc - путь до текстого файла
+	// String inputDoc - путь до текстового файла
 	// String inputCountString - число строк в выходном html файле не должно
-	// превышать эту величину
+	// превышать данную величину
 	// выходной параметр:
 	// String содержащая текст ошибки или "ok", если все прошло удачно
 	public static String findstring(String inputDict, String inputDoc, String inputCountString)
@@ -131,8 +131,8 @@ public class textParser {
 
 				StringBuilder untilDota = new StringBuilder();
 				StringBuilder afterDota = new StringBuilder();
-				// если в проанализированном фрагменте встечалась точка
-				// то нам нельзя разбивать это предложение
+				// если в проанализированном фрагменте встречалась точка
+				// то нам нельзя разбивать данное предложение
 				if (memoryStringNum != 0) {
 					// все что до точки останется в этом html, остальное уйдет в
 					// следующий
@@ -159,7 +159,7 @@ public class textParser {
 
 				body.delete(0, body.length());
 
-				// если в проанализированном фрагменте встечалась точка
+				// если в проанализированном фрагменте встречалась точка
 				// то количество строк в следующем фрагменте изначально будет не
 				// нулевое
 				if (memoryStringNum != 0) {
@@ -222,7 +222,7 @@ public class textParser {
 	// метод для проверки входных параметров на корректность
 	// входные параметры:
 	// String fileWordbook - путь до файла словаря
-	// String fileDoc - путь до текстого файла
+	// String fileDoc - путь до текстового файла
 	// String numberString - число строк в выходном html файле
 	// выходной параметр:
 	// String содержащая текст ошибки или "ok", если все прошло удачно
